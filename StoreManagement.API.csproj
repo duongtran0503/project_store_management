@@ -48,7 +48,6 @@
     <Folder Include="Modules\Authentication\DTOs\Requests\" />
     <Folder Include="Modules\Authentication\Configurations\" />
     <Folder Include="Modules\Authentication\Repository\" />
-    <Folder Include="Modules\Authentication\Services\" />
     <Folder Include="Modules\Reporting\" />
     <Folder Include="Modules\Orders\" />
     <Folder Include="Modules\Products\" />

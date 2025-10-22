@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using StoreManagement.API.Common.Middleware;
 using StoreManagement.API.Modules.Authentication;
 using StoreManagement.API.Shared.Data;
 using StoreManagement.API.Shared.Middleware;
@@ -48,7 +49,8 @@ namespace StoreManagement.API
                 //app.UseSwagger();
                 //app.UseSwaggerUI();
             }
-         
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+
             app.UseMiddleware<LoggingMiddleware>();
 
             app.UseAuthorization();
