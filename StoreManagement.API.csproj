@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+		  <!-- ASP.NET Core Framework Packages -->
+		  <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+		  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		  <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
+
+		  <!-- Entity Framework Core -->
+		  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+		  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
+			  <PrivateAssets>all</PrivateAssets>
+			  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  </PackageReference>
+		  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
+			  <PrivateAssets>all</PrivateAssets>
+			  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  </PackageReference>
+		  <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+
+		  <!-- Authentication & Security -->
+		  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+		  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
+		  <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+
+		  <!-- Validation -->
+
+		  <!-- Object Mapping -->
+
+		  <!-- JSON & Serialization -->
+		  <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="9.0.10" />
+		  <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
+
+
+
+		  <!-- Utilities -->
+		  <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Modules\Authentication\DTOs\Responses\" />
+    <Folder Include="Modules\Authentication\DTOs\Requests\" />
+    <Folder Include="Modules\Authentication\Configurations\" />
+    <Folder Include="Modules\Authentication\Repository\" />
+    <Folder Include="Modules\Authentication\Services\" />
+    <Folder Include="Modules\Reporting\" />
+    <Folder Include="Modules\Orders\" />
+    <Folder Include="Modules\Products\" />
+    <Folder Include="Modules\Users\" />
+  </ItemGroup>
+
+</Project>
