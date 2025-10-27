@@ -1,4 +1,7 @@
-﻿using StoreManagement.API.Modules.Authentication.Services;
+﻿using Microsoft.AspNetCore.Identity;
+using StoreManagement.API.Modules.Authentication.Mapper;
+using StoreManagement.API.Modules.Authentication.Repository;
+using StoreManagement.API.Modules.Authentication.Services;
 
 namespace StoreManagement.API.Modules.Authentication
 {
@@ -6,8 +9,18 @@ namespace StoreManagement.API.Modules.Authentication
     {
         public static IServiceCollection AddAuthenticationModule(this IServiceCollection services) {
             // Add services
-            services.AddScoped<TestService>();
+            services.AddScoped<UserService>();
+            services.AddScoped<JwtService>();
+            services.AddScoped<AuthTokenService>();
             // Add Repository
+            services.AddScoped<UserRepository>();
+          
+
+            // Add mapper
+            services.AddScoped<UserMapper>();
+
+            // Add auto create account admin
+            services.AddScoped<DataSeeder>();
             return services;
         }
     }

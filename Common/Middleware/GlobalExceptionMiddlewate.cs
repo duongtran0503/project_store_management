@@ -18,10 +18,25 @@ namespace StoreManagement.API.Common.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
+   
             try
             {
+              
+
+       
                 await _next(context);
+
+                if (context.Response.StatusCode == 401 || context.Response.StatusCode == 403)
+                {
+                    _logger.LogWarning("Intercepting {StatusCode} for {Path}",
+                        context.Response.StatusCode, context.Request.Path);
+
+                    await RewriteAuthResponseAsync(context);
+                }
+
             }
+
+           
             catch (AppException ex)
             {
                 _logger.LogWarning(ex.ErrorCode.Message, "Business exception occurred");
@@ -29,6 +44,7 @@ namespace StoreManagement.API.Common.Middleware
             }
             catch (Exception ex)
             {
+               
                 _logger.LogError(ex, "Unhandled exception");
                 await HandleUnhandledExceptionAsync(context, ex);
             }
@@ -63,6 +79,53 @@ namespace StoreManagement.API.Common.Middleware
             };
 
             return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        }
+    
+        private async Task RewriteAuthResponseAsync(HttpContext context)
+        {
+            try
+            {
+                
+             
+
+                var response = context.Response.StatusCode switch
+                {
+                    401 => new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Người dùng chưa đăng nhập",
+                        StatusCode = 401,
+                   
+                    },
+                    403 => new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Không có quyền truy cập",
+                        StatusCode = 403,
+                   
+                    },
+                    _ => new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Lỗi xác thực",
+                        StatusCode = context.Response.StatusCode,
+                     
+                    }
+                };
+
+                context.Response.ContentType = "application/json";
+
+                var jsonResponse = JsonSerializer.Serialize(response, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                await context.Response.WriteAsync(jsonResponse);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to rewrite auth response");
+            }
         }
     }
 }

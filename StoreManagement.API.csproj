@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
+	  <NoWarn>CS8618</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
@@ -44,10 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\Authentication\DTOs\Responses\" />
-    <Folder Include="Modules\Authentication\DTOs\Requests\" />
     <Folder Include="Modules\Authentication\Configurations\" />
-    <Folder Include="Modules\Authentication\Repository\" />
     <Folder Include="Modules\Reporting\" />
     <Folder Include="Modules\Orders\" />
     <Folder Include="Modules\Products\" />

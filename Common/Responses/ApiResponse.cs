@@ -1,4 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Text.Json.Serialization;
 
 namespace StoreManagement.API.Common.Responses
 {
@@ -15,7 +19,20 @@ namespace StoreManagement.API.Common.Responses
         public static ApiResponse<T> Ok(T data, string message = "Success", int statusCode = 200)
             => new() { Success = true, Message = message, Data = data, StatusCode = statusCode };
 
-        public static ApiResponse<T> Fail(List<string> errors, string message = "Error", int statusCode = 400)
+        public static ApiResponse Fail(List<string> errors, string message = "Error", int statusCode = 400)
             => new() { Success = false, Message = message, Errors = errors, StatusCode = statusCode };
+    }
+    public class ApiResponse:ApiResponse<object>
+    {
+        public static readonly string MESSAGE_ERROR_INPUT = "Dữ liệu không hợp lệ";
+
+        public static ApiResponse ErrorInput(ModelStateDictionary modelState)
+        {
+            var errors = modelState.Values.SelectMany(x => x.Errors)
+                .Select(e => string.IsNullOrEmpty(e.ErrorMessage)? "Invalid input":e.ErrorMessage).ToList();
+            return new() { Success = false, Message = MESSAGE_ERROR_INPUT, Errors = errors, StatusCode = 400};
+        }
+        public static ApiResponse Ok(string message = "Success", int statusCode = 200)
+         => new() { Success = true, Message = message, StatusCode = statusCode };
     }
 }
