@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿
 using StoreManagement.API.Modules.Authentication.Mapper;
 using StoreManagement.API.Modules.Authentication.Repository;
 using StoreManagement.API.Modules.Authentication.Services;

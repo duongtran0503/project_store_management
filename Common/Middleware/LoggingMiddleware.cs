@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace StoreManagement.API.Shared.Middleware
+namespace StoreManagement.API.Common.Middleware
 {
     public class LoggingMiddleware
     {
