@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using StoreManagement.API.Common.Entities;
 using StoreManagement.API.Shared.Data;
 using StoreManagement.API.Shared.Entities;
 
@@ -11,7 +12,7 @@ namespace StoreManagement.API.Modules.Authentication.Repository
          _context = context;
         }
 
-         public async Task<User> RegisterAsync(User us)
+         public async Task<Account> RegisterAsync(Account us)
         {
            await _context.AddAsync(us);
            await _context.SaveChangesAsync();
@@ -20,32 +21,31 @@ namespace StoreManagement.API.Modules.Authentication.Repository
 
         public async Task<bool> CheckUserByEmailAsync(string email)
         {
-            return await _context.Users.AnyAsync(u => u.Email == email);
+            return await _context.Accounts.AnyAsync(u => u.Email == email);
         }
 
-        public async Task<User> GetUserByEmailAsync(string email)
+        public async Task<Account> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Accounts.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<User> CreateUserAsync(User user)
+        public async Task<Account> CreateUserAsync(Account user)
         {
             await _context.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;
         }
 
-        public async Task<User> GetUserById(string id)
+        public async Task<Account> GetUserById(string id)
         {
-            return await _context.Users
+            return await _context.Accounts
                 .Where(u => u.Id == id)
-                .Select(u => new User
+                .Select(u => new Account
                 {
                     Id = u.Id,
                     Username = u.Username,
                     Email = u.Email,
-                    FullName = u.FullName,
-                    Role = u.Role,
+                    RoleName = u.RoleName,
                     IsActive = u.IsActive,
                     CreatedAt = u.CreatedAt
                 })

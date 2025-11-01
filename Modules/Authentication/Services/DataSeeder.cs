@@ -29,14 +29,13 @@ namespace StoreManagement.API.Modules.Authentication.Services
                 }
 
           
-                var adminUser = new User
+                var adminUser = new Common.Entities.Account
                 {
                     Id = Guid.NewGuid().ToString(),
                     Username = "admin",
                     Email = "admin@gmail.com",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("123123"),
-                    FullName = "System Administrator",
-                    Role = Roles.ADMIN.ToString(),
+                    RoleName = Roles.ADMIN.ToString(),
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };

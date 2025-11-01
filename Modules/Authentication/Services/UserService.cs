@@ -1,6 +1,7 @@
 ﻿namespace StoreManagement.API.Modules.Authentication.Services
 {
     using Microsoft.AspNetCore.Authorization;
+    using StoreManagement.API.Common.Entities;
     using StoreManagement.API.Common.Exceptions;
     using StoreManagement.API.Modules.Authentication.Constants;
     using StoreManagement.API.Modules.Authentication.DTOs.Requests;
@@ -37,8 +38,8 @@
             {
                 throw new AppException(AuthErrorCode.AccountExisted);
             }
-            var user = new User();
-            user.Role = Roles.STAFF.ToString();
+            var user = new Account();
+            user.RoleName = Roles.STAFF.ToString();
             _userMapper.RegisterUserMapper(user, request);
             user.PasswordHash = PasswordHelper.HashPassword(request.Password);
             var userInfo = await _userRepository.RegisterAsync(user);
@@ -47,7 +48,7 @@
                 UserName = userInfo.Username,
                 Email = userInfo.Email,
                 Id = userInfo.Id,
-                Role = userInfo.Role,
+                Role = userInfo.RoleName,
             });
 
             return new AuthenticationResponse { AccessToken = jwtToken.AccessToken, RefreshToken = jwtToken.RefreshToken };
@@ -72,7 +73,7 @@
                 UserName = user.Username,
                 Email = user.Email,
                 Id = user.Id,
-                Role = user.Role,
+                Role = user.RoleName,
             });
 
             return new AuthenticationResponse { AccessToken=jwtToken.AccessToken,RefreshToken = jwtToken.RefreshToken };
