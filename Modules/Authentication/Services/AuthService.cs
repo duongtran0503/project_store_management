@@ -10,9 +10,8 @@
     using StoreManagement.API.Modules.Authentication.Mapper;
     using StoreManagement.API.Modules.Authentication.Repository;
     using StoreManagement.API.Modules.Authentication.Utils;
-    using StoreManagement.API.Shared.Entities;
 
-        public class UserService
+        public class AuthService
     {
                 private readonly UserRepository _userRepository;
 
@@ -21,7 +20,7 @@
                 private readonly JwtService _jwtService;
                 private readonly AuthTokenService _authTokenService;
 
-                public UserService(UserRepository userRepository, UserMapper userMapper
+                public AuthService(UserRepository userRepository, UserMapper userMapper
             , JwtService jwtService,AuthTokenService authTokenService
             )
         {
@@ -80,12 +79,7 @@
         }
 
    
-        public async Task<UserResponse> GetProfile()
-        {
-            var userId = _authTokenService.GetCurrentUserId();
-            var user = await _userRepository.GetUserById(userId);
-            return _userMapper.UserToUserResponse(user);
-        }
+      
     }
 
 }

@@ -36,21 +36,7 @@ namespace StoreManagement.API.Modules.Authentication.Repository
             return user;
         }
 
-        public async Task<Account> GetUserById(string id)
-        {
-            return await _context.Accounts
-                .Where(u => u.Id == id)
-                .Select(u => new Account
-                {
-                    Id = u.Id,
-                    Username = u.Username,
-                    Email = u.Email,
-                    RoleName = u.RoleName,
-                    IsActive = u.IsActive,
-                    CreatedAt = u.CreatedAt
-                })
-                .FirstOrDefaultAsync();
-        }
+      
 
     }
 }

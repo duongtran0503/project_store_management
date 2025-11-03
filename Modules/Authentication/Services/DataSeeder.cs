@@ -34,6 +34,7 @@ namespace StoreManagement.API.Modules.Authentication.Services
                     Id = Guid.NewGuid().ToString(),
                     Username = "admin",
                     Email = "admin@gmail.com",
+                    PositionName = "Quản lý cửa hàng",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("123123"),
                     RoleName = Roles.ADMIN.ToString(),
                     IsActive = true,

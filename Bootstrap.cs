@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using StoreManagement.API.Common.Middleware;
 using StoreManagement.API.Modules.Authentication;
 using StoreManagement.API.Modules.Authentication.Services;
+using StoreManagement.API.Modules.Products;
+using StoreManagement.API.Modules.Users;
 using StoreManagement.API.Shared.Data;
 using System.Text;
 
@@ -29,6 +31,8 @@ public static class Bootstrap
     public static WebApplicationBuilder AddApplicationModules(this WebApplicationBuilder builder)
     {
         builder.Services.AddAuthenticationModule();
+        builder.Services.AddUserModule();
+        builder.Services.AddProductModule();
 
         return builder;
     }

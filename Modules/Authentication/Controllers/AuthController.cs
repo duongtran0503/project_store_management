@@ -12,11 +12,11 @@ namespace StoreManagement.API.Modules.Authentication.Controllers
     [Route("/api/auth")]
     public class AuthController: ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly AuthService _authService;
 
-        public AuthController(UserService userService)
+        public AuthController(AuthService userService)
         {
-             _userService = userService;
+             _authService = userService;
          }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
@@ -25,7 +25,7 @@ namespace StoreManagement.API.Modules.Authentication.Controllers
             {
                 return BadRequest(ApiResponse.ErrorInput(ModelState));
             }
-            var response = await _userService.RegisterUser(request);
+            var response = await _authService.RegisterUser(request);
            return Ok(ApiResponse<AuthenticationResponse>.Ok(response));
         }
 
@@ -36,17 +36,11 @@ namespace StoreManagement.API.Modules.Authentication.Controllers
             {
                 return BadRequest(ApiResponse.ErrorInput(ModelState));
             }
-            var response = await _userService.Login(request);
+            var response = await _authService.Login(request);
             return Ok(ApiResponse<AuthenticationResponse>.Ok(response));
         }
 
-        [HttpGet("profile")]
-        [Authorize]
-        public async Task<IActionResult> GetProfile()
-        {
-           var response = await _userService.GetProfile();
-            return Ok(ApiResponse<UserResponse>.Ok(response));
-        }
+       
 
         
       

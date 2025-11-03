@@ -9,7 +9,7 @@ namespace StoreManagement.API.Modules.Authentication
     {
         public static IServiceCollection AddAuthenticationModule(this IServiceCollection services) {
             // Add services
-            services.AddScoped<UserService>();
+            services.AddScoped<AuthService>();
             services.AddScoped<JwtService>();
             services.AddScoped<AuthTokenService>();
             // Add Repository
