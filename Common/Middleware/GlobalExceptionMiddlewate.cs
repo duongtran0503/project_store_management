@@ -74,7 +74,7 @@ namespace StoreManagement.API.Common.Middleware
             var response = new ApiResponse<object>
             {
                 Success = false,
-                Message = "Internal server error",
+                Message = "Lỗi server rồi kiểm tra server đi bản ê:))",
                 StatusCode = 500
             };
 

@@ -57,6 +57,26 @@ namespace StoreManagement.API.Modules.Products.Services
 
         }
 
+        public async Task<PaginationResponse<BookResponse>> GetBooksAsync(PaginationRequest request)
+        {
+     
+            var (bookEntities, totalCount) = await _productRepository.GetPagedBooksAsync(
+                request.PageNumber,
+                request.PageSize
+            );
+
+          
+            var bookResponses = bookEntities.Select(bookEntity =>ToBookResposne(bookEntity,bookEntity.Category)).ToList();
+
+         
+            return new PaginationResponse<BookResponse>(
+                bookResponses,
+                totalCount,
+                request.PageNumber,
+                request.PageSize
+            );
+        }
+
         private BookResponse ToBookResposne(Book product ,Category category)
         {
             return new BookResponse

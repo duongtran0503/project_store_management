@@ -46,8 +46,6 @@
 
   <ItemGroup>
     <Folder Include="Modules\Authentication\Configurations\" />
-    <Folder Include="Modules\Reporting\" />
-    <Folder Include="Modules\Orders\" />
   </ItemGroup>
 
 </Project>

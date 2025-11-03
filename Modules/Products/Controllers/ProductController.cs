@@ -16,12 +16,12 @@ namespace StoreManagement.API.Modules.Products.Controllers
          _productService = productService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetBooks()
-        {
-            var res =await _productService.GetBooks();
-            return Ok(ApiResponse<List<BookResponse>>.Ok(res));
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> GetBooks()
+        //{
+        //    var res =await _productService.GetBooks();
+        //    return Ok(ApiResponse<List<BookResponse>>.Ok(res));
+        //}
 
         [HttpPost]
         [Authorize]
@@ -33,6 +33,15 @@ namespace StoreManagement.API.Modules.Products.Controllers
             var res = await _productService.CreateProduct(request);
             return Ok(ApiResponse<BookResponse>.Ok(res));
         }
-       
+
+        [HttpGet]
+        public async Task<IActionResult> GetBooks([FromQuery] PaginationRequest request)
+        {
+            var result = await _productService.GetBooksAsync(request);
+
+           
+            return Ok(ApiResponse<PaginationResponse<BookResponse>>.Ok(result));
+        }
+
     }
 }

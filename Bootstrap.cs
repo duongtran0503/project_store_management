@@ -4,7 +4,11 @@ using Microsoft.IdentityModel.Tokens;
 using StoreManagement.API.Common.Middleware;
 using StoreManagement.API.Modules.Authentication;
 using StoreManagement.API.Modules.Authentication.Services;
+using StoreManagement.API.Modules.InventoryAndProcurement;
+using StoreManagement.API.Modules.Orders;
 using StoreManagement.API.Modules.Products;
+using StoreManagement.API.Modules.Reporting;
+using StoreManagement.API.Modules.SalesAndPromotion;
 using StoreManagement.API.Modules.Users;
 using StoreManagement.API.Shared.Data;
 using System.Text;
@@ -33,7 +37,10 @@ public static class Bootstrap
         builder.Services.AddAuthenticationModule();
         builder.Services.AddUserModule();
         builder.Services.AddProductModule();
-
+        builder.Services.AddInventoryAndProcurementModule();
+        builder.Services.AddReportModule();
+        builder.Services.AddOrdersModule();
+        builder.Services.AddSalesAndPromotionModule();
         return builder;
     }
     public static WebApplicationBuilder AddMvcServices(this WebApplicationBuilder builder)

@@ -28,5 +28,21 @@ namespace StoreManagement.API.Modules.Products.Repository
         {
             return await _context.Books.AnyAsync(b => b.Isbn == isbn);
         }
+
+        public async Task<(List<Book> books, int totalCount)> GetPagedBooksAsync(int pageNumber, int pageSize)
+        {
+           
+            var totalCount = await _context.Books.CountAsync();
+
+        
+            var books = await _context.Books
+                .Include(b => b.Category)
+                .AsNoTracking()
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (books, totalCount);
+        }
     }
 }
