@@ -10,22 +10,22 @@ namespace StoreManagement.API.Modules.Products.Controllers
     [ApiController]
     [Route("/api/categories")]
 
-    public class CategoryController:ControllerBase
+    public class CategoryController : ControllerBase
     {
         private readonly CategoryService _categoryService;
         public CategoryController(CategoryService categoryService) {
-            _categoryService = categoryService; 
+            _categoryService = categoryService;
         }
 
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ApiResponse.ErrorInput(ModelState));
             }
-            var response  = await _categoryService.CreateCategory(request);
+            var response = await _categoryService.CreateCategory(request);
             return Ok(ApiResponse<CategoryResponse>.Ok(response));
 
         }
@@ -35,6 +35,32 @@ namespace StoreManagement.API.Modules.Products.Controllers
         {
             var res = await _categoryService.GetCategories();
             return Ok(ApiResponse<List<CategoryResponse>>.Ok(res));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategoryById([FromRoute] string id)
+        {
+            var res = await _categoryService.GetCategoryById(id);
+            return Ok(ApiResponse<CategoryResponse>.Ok(res));
+
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteCategory([FromRoute] string id)
+        {
+            await _categoryService.DeleteCategory(id);
+            return Ok(ApiResponse.Ok());
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateCategory([FromRoute] string id, [FromBody] UpdateCategoryRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ApiResponse.ErrorInput(ModelState));
+
+            var res = await _categoryService.UpdateCategory(request, id);
+            return Ok(ApiResponse<CategoryResponse>.Ok(res));
         }
     }
 }

@@ -32,6 +32,27 @@ namespace StoreManagement.API.Modules.Products.Repository
                 .ToListAsync();
         }
 
+        public async Task<bool> CheckCategoryHaveProduct(string categoryId)
+        {
+           
+            return await _context.Books
+                .AsNoTracking()
+                .AnyAsync(b => b.CategoryId == categoryId);
+        }
+
+        public async Task DeleteCategory(Category category)
+        {
+            
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Category> UpdateCategory(Category category)
+        {
+            _context.Categories.Update(category);
+            await _context.SaveChangesAsync();
+            return category;
+        }
         public async Task<Category?> GetCategoryById(string id)
         {
             return await _context.Categories.FindAsync(id);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StoreManagement.API.Common.Middleware;
 using StoreManagement.API.Modules.Authentication;
@@ -12,6 +13,7 @@ using StoreManagement.API.Modules.SalesAndPromotion;
 using StoreManagement.API.Modules.Users;
 using StoreManagement.API.Shared.Data;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace StoreManagement.API;
 
@@ -37,7 +39,7 @@ public static class Bootstrap
         builder.Services.AddAuthenticationModule();
         builder.Services.AddUserModule();
         builder.Services.AddProductModule();
-        builder.Services.AddInventoryAndProcurementModule();
+        builder.Services.AddInventoryModule();
         builder.Services.AddReportModule();
         builder.Services.AddOrdersModule();
         builder.Services.AddSalesAndPromotionModule();
@@ -49,7 +51,13 @@ public static class Bootstrap
             .ConfigureApiBehaviorOptions(opt =>
             {
                 opt.SuppressModelStateInvalidFilter = true;
-            });
+              
+            })
+            .AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            })
+            ;
 
         return builder;
     }
@@ -109,6 +117,7 @@ public static class Bootstrap
 
         return builder;
     }
+
 
     public static WebApplicationBuilder AddAuthorizationServices(this WebApplicationBuilder builder)
     {

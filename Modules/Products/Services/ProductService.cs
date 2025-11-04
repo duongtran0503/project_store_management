@@ -49,13 +49,7 @@ namespace StoreManagement.API.Modules.Products.Services
             return ToBookResposne(product, category);
         }
 
-        public async Task<List<BookResponse>> GetBooks()
-        {
-            var books = await _productRepository.GetBooksAsync();
-            List < BookResponse > result = books.Select(b => ToBookResposne(b, b.Category)).ToList();
-            return result;
-
-        }
+     
 
         public async Task<PaginationResponse<BookResponse>> GetBooksAsync(PaginationRequest request)
         {
@@ -77,6 +71,76 @@ namespace StoreManagement.API.Modules.Products.Services
             );
         }
 
+        public async Task<PaginationResponse<BookResponse>> FilterProducts(FilterProductRequest request)
+        {
+            var (bookEntities, totalCount) = await _productRepository.GetFilteredBooksAsync(request);
+            var bookResponses = bookEntities.Select(bookEntity => ToBookResposne(bookEntity, bookEntity.Category)).ToList();
+
+            return new PaginationResponse<BookResponse>(
+               bookResponses,
+               totalCount,
+               request.PageNumber,
+               request.PageSize
+           );
+
+        
+        }
+
+        public async Task<BookResponse> UpdateBook(UpdateBookRequest request,string id)
+        {
+           var book = await _productRepository.GetBookByIdAsync(id);
+           if(book==null)
+            {
+                throw new AppException(BookErrorCode.BookNotExisted);
+            }
+            var category = await _categoryRepository.GetCategoryById(request.CategoryId);
+            if (category == null)
+            {
+                throw new AppException(CategoryErrorCode.CategoryNotExisted);
+            }
+            book.Title = request.Title;
+            book.Author = request.Author;
+            book.Publisher = request.Publisher;
+            book.Isbn = request.Isbn;
+            book.CategoryId = request.CategoryId;
+            book.RetailPrice = request.RetailPrice;
+            book.Image = request.Image ?? ProductConstants.PRODUCT_DEFAULT_IMAGE;
+            book.IsAvailable = request.IsAvailable;
+            var updatedBook = await _productRepository.UpdateBookAsync(book);
+            return ToBookResposne(updatedBook, category);
+
+        } 
+
+        public async Task DeleteProduct(string id)
+        {
+            var product = await _productRepository.GetBookByIdAsync(id);
+            if (product ==null)
+            {
+                throw new AppException(BookErrorCode.BookNotExisted);
+            }
+            product.IsAvailable = false;
+            await _productRepository.UpdateBookAsync(product);
+        }
+
+        public async Task<BookResponse> GetBookById(string id)
+        {
+            var book = await _productRepository.GetBookByIdAsync(id);
+            if (book == null) throw new AppException(BookErrorCode.BookNotExisted);
+            return ToBookResposne(book,book.Category);
+        }
+
+        public async Task<PaginationResponse<BookResponse>> GetBookDeleted(PaginationRequest request)
+        {
+            var (books, totalCount) = await _productRepository.GetPagedBooksDeletedAsync(request.PageNumber,request.PageSize);
+            var bookResponses = books.Select(bookEntity => ToBookResposne(bookEntity, bookEntity.Category)).ToList();
+
+            return new PaginationResponse<BookResponse>(
+               bookResponses,
+               totalCount,
+               request.PageNumber,
+               request.PageSize
+           );
+        }
         private BookResponse ToBookResposne(Book product ,Category category)
         {
             return new BookResponse
@@ -95,7 +159,7 @@ namespace StoreManagement.API.Modules.Products.Services
                 IsAvailable = product.IsAvailable,
                 CategoryName = category.CategoryName
             };
-        }
+        } 
 
      
     }
