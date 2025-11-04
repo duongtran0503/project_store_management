@@ -46,6 +46,8 @@
 
   <ItemGroup>
     <Folder Include="Modules\Authentication\Configurations\" />
+    <Folder Include="Modules\Suppliers\Dtos\Responses\" />
+    <Folder Include="Modules\Suppliers\Dtos\Requests\" />
   </ItemGroup>
 
 </Project>
