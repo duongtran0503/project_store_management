@@ -12,7 +12,7 @@ namespace StoreManagement.API.Modules.Users.Repository
            _context = context;
         }
 
-        public async Task<Account> GetUserById(string id)
+        public async Task<Account?> GetUserById(string id)
         {
             return await _context.Accounts
                 .Where(u => u.Id == id)
@@ -26,6 +26,13 @@ namespace StoreManagement.API.Modules.Users.Repository
                     CreatedAt = u.CreatedAt
                 })
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<Customer> CreateCustomerAsync(Customer c)
+        {
+            _context.customers.Add(c);
+            await _context.SaveChangesAsync();
+            return c;
         }
     }
 }

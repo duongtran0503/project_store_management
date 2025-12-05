@@ -40,10 +40,7 @@ namespace StoreManagement.API.Modules.Authentication.Controllers
             return Ok(ApiResponse<AuthenticationResponse>.Ok(response));
         }
 
-       
-
-        
-      
+  
          
     }
 }

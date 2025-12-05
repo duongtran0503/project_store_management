@@ -1,0 +1,40 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace StoreManagement.API.Migrations
+{
+    /// <inheritdoc />
+    public partial class ChangeFieldStattusToIsActive : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "Status",
+                table: "Books");
+
+            migrationBuilder.AddColumn<bool>(
+                name: "IsActive",
+                table: "Books",
+                type: "tinyint(1)",
+                nullable: false,
+                defaultValue: false);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "IsActive",
+                table: "Books");
+
+            migrationBuilder.AddColumn<string>(
+                name: "Status",
+                table: "Books",
+                type: "longtext",
+                nullable: false)
+                .Annotation("MySql:CharSet", "utf8mb4");
+        }
+    }
+}

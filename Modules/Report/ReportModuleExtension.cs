@@ -1,4 +1,4 @@
-﻿namespace StoreManagement.API.Modules.Reporting
+﻿namespace StoreManagement.API.Modules.Report
 {
     public static class ReportModuleExtension
     {
