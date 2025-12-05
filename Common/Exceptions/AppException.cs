@@ -8,6 +8,9 @@
         {
             ErrorCode = err;
         }
-
+        public AppException(IErrorCode err, string message) : base(message:message)
+        {
+            ErrorCode = err;
+        }
     }
 }

@@ -5,7 +5,11 @@
         public required string CategoryName { get; set; }
         public required string Id { get; set; }
         public string CategoryCode { get; set; } = string.Empty;
-        public DateTime? CreatedDate { get; set; }
-        public DateTime? UpdateAt { get; set; }
+        public bool IsDeleted { get; set; } = false;
+
+        public string Status { get; set; } = string.Empty;
+        public int TotalBooks { get; set; } = 0;
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

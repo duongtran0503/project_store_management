@@ -16,13 +16,13 @@ namespace StoreManagement.API.Modules.Authentication.Services
         public string GetCurrentUserId()
         {
             var userInfo = GetCurrentUserInfo();
-            return userInfo?.UserId;  
+            return userInfo.UserId;  
         }
 
         public string GetCurrentUsername()
         {
             var userInfo = GetCurrentUserInfo();
-            return userInfo?.Username; 
+            return userInfo.Username; 
         }
 
         public string GetCurrentUserEmail()

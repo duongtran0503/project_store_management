@@ -9,6 +9,7 @@ namespace StoreManagement.API.Modules.Users.Mapper
         {
             return new UserResponse
             {
+                Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
                 Role = user.RoleName,

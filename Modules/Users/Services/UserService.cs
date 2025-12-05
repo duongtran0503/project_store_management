@@ -1,6 +1,8 @@
 ﻿
+using StoreManagement.API.Common.Exceptions;
 using StoreManagement.API.Modules.Authentication.Services;
 using StoreManagement.API.Modules.Users.Dtos.Response;
+using StoreManagement.API.Modules.Users.ErrorCode;
 using StoreManagement.API.Modules.Users.Mapper;
 using StoreManagement.API.Modules.Users.Repository;
 
@@ -19,6 +21,7 @@ namespace StoreManagement.API.Modules.Users.Services
         {
             var userId = _authTokenService.GetCurrentUserId();
             var user = await _userRepository.GetUserById(userId);
+            if (user == null) throw new AppException(UserErrorCode.UserNotExisted);
             return UserMapper.UserToUserResponse(user);
         }
     }

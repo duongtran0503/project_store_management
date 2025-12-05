@@ -31,10 +31,10 @@ namespace StoreManagement.API.Modules.Products.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCategories()
+        public async Task<IActionResult> GetCategories([FromQuery] PaginationRequest request)
         {
-            var res = await _categoryService.GetCategories();
-            return Ok(ApiResponse<List<CategoryResponse>>.Ok(res));
+            var res = await _categoryService.GetCategories(request);
+            return Ok(ApiResponse<PaginationResponse<CategoryResponse>>.Ok(res));
         }
 
         [HttpGet("{id}")]
@@ -61,6 +61,28 @@ namespace StoreManagement.API.Modules.Products.Controllers
 
             var res = await _categoryService.UpdateCategory(request, id);
             return Ok(ApiResponse<CategoryResponse>.Ok(res));
+        }
+
+        [HttpPatch("restore/{id}")]
+        [Authorize]
+        public async Task<IActionResult> RestoreCategory([FromRoute] string id)
+        {
+           var res =   await _categoryService.RestoreCategory(id);
+            return Ok(ApiResponse<CategoryResponse>.Ok(res));
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> FilterAuthor([FromQuery] FilterCategoryRequest request)
+        {
+            var res = await _categoryService.FilterPublisher(request);
+            return Ok(ApiResponse<PaginationResponse<CategoryResponse>>.Ok(res));
+        }
+
+        [HttpGet("suggestions")]
+        public async Task<IActionResult> GetListSuggestion([FromQuery] FilterCategoryRequest request)
+        {
+            var res = await _categoryService.GetListSuggestions(request);
+            return Ok(ApiResponse<List<SuggestionsResponse>>.Ok(res));
         }
     }
 }

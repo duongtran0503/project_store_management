@@ -1,10 +1,11 @@
 ﻿using StoreManagement.API.Common.Entities;
 using StoreManagement.API.Common.Exceptions;
+using StoreManagement.API.Common.Responses;
 using StoreManagement.API.Modules.Suppliers.Dtos.Requests;
 using StoreManagement.API.Modules.Suppliers.Dtos.Responses;
 using StoreManagement.API.Modules.Suppliers.ErrorCode;
 using StoreManagement.API.Modules.Suppliers.Repository;
-using System.Security.Cryptography.Xml;
+using TimeZoneConverter;
 
 namespace StoreManagement.API.Modules.Suppliers.Services
 {
@@ -30,6 +31,12 @@ namespace StoreManagement.API.Modules.Suppliers.Services
             return ToSupplierResponse(supplier);
         }
 
+        public async Task<SupplierResponse> GetSupplierById(string id)
+        {
+            var supplier = await _supplierRepository.GetSupplierByIdAsync(id);
+            if (supplier == null) throw new AppException(SupplierErrorCode.SupplierNotExsisted);
+            return ToSupplierResponse(supplier);
+        }
         public async Task<PaginationResponse<SupplierResponse>> GetSuppliers(PaginationRequest request)
         {
             var (supplierEntities, total) = await _supplierRepository.GetPageSupplierAsync(request.PageSize, request.PageNumber);
@@ -63,16 +70,23 @@ namespace StoreManagement.API.Modules.Suppliers.Services
             return new PaginationResponse<SupplierResponse>(suppliers, total,request.PageNumber,request.PageSize);
         }
 
-        private SupplierResponse ToSupplierResponse(Supplier supplier) => new SupplierResponse
+        private SupplierResponse ToSupplierResponse(Supplier supplier)
         {
-            Address = supplier.Address,
-            ContactPerson = supplier.ContactPerson,
-            Phone = supplier.Phone,
-            SupplierName = supplier.SupplierName,
-            Id = supplier.Id,
-            CreatedAt = supplier.CreatedAt,
-            UpdatedAt = supplier.UpdatedAt,
-        };
+            var vietnamTimeZone = TZConvert.GetTimeZoneInfo("Asia/Ho_Chi_Minh");
+            DateTime createdAtVN = TimeZoneInfo.ConvertTimeFromUtc(supplier.CreatedAt, vietnamTimeZone);
+            DateTime updatedAtVN = TimeZoneInfo.ConvertTimeFromUtc(supplier.UpdatedAt, vietnamTimeZone);
+            return    new SupplierResponse
+            {
+                Address = supplier.Address,
+                ContactPerson = supplier.ContactPerson,
+                Phone = supplier.Phone,
+                SupplierName = supplier.SupplierName,
+                Id = supplier.Id,
+                CreatedAt = createdAtVN,
+                UpdatedAt = updatedAtVN,
+            };
+        }
+
     }
 
     

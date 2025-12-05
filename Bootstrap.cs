@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Pomelo.EntityFrameworkCore.MySql.Internal;
 using StoreManagement.API.Common.Middleware;
 using StoreManagement.API.Modules.Authentication;
 using StoreManagement.API.Modules.Authentication.Services;
@@ -14,22 +16,26 @@ using StoreManagement.API.Modules.Suppliers;
 using StoreManagement.API.Modules.Users;
 using StoreManagement.API.Shared.Data;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace StoreManagement.API;
 
 public static class Bootstrap
 {
+    public static readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
-
-        builder.AddMvcServices()
+       
+            builder.AddMvcServices()
                .AddSwaggerServices()
                .AddDatabaseServices()
                .AddAuthenticationServices()
                .AddAuthorizationServices()
                .AddHttpContextServices()
-               .AddApplicationModules();
+               .AddApplicationModules()
+               .AddCors();
+                
 
         return builder;
     }
@@ -57,6 +63,8 @@ public static class Bootstrap
             })
             .AddJsonOptions(opt =>
             {
+                opt.JsonSerializerOptions.Converters.Add(new UtcDateTimeConverter());
+                opt.JsonSerializerOptions.WriteIndented = true;
                 opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             })
             ;
@@ -80,10 +88,12 @@ public static class Bootstrap
                 new MySqlServerVersion(new Version(8, 0, 21)),
                 mySqlOptions =>
                 {
+                   
                     mySqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 5,
                         maxRetryDelay: TimeSpan.FromSeconds(30),
-                        errorNumbersToAdd: null);
+                        errorNumbersToAdd: null)
+                    .CommandTimeout(30);
                 }
             ));
 
@@ -130,8 +140,25 @@ public static class Bootstrap
 
     public static WebApplicationBuilder AddHttpContextServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddHttpContextAccessor(); 
 
+
+        return builder;
+    }
+
+    public static WebApplicationBuilder AddCors(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(name: MyAllowSpecificOrigins,
+                              policy =>
+                              {
+
+                                  policy.WithOrigins("http://localhost:3000")
+                                        .AllowAnyHeader()
+                                        .AllowAnyMethod();
+                              });
+        });
         return builder;
     }
 
@@ -146,6 +173,7 @@ public static class Bootstrap
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.UseCors(MyAllowSpecificOrigins);
 
         app.UseAuthentication();
         app.UseAuthorization();
@@ -163,5 +191,20 @@ public static class Bootstrap
         await seeder.SeedAdminUserAsync();
 
         return app;
+    }
+
+    public class UtcDateTimeConverter : JsonConverter<DateTime>
+    {
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+           
+            return reader.GetDateTime().ToUniversalTime();
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        {
+            
+            writer.WriteStringValue(value.ToUniversalTime().ToString("o"));
+        }
     }
 }

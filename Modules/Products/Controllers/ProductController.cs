@@ -60,8 +60,16 @@ namespace StoreManagement.API.Modules.Products.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteProduct([FromRoute] string id)
         {
-           await _productService.DeleteProduct(id);
-            return Ok(ApiResponse.Ok());
+          var res =    await _productService.DeleteProduct(id);
+            return Ok(ApiResponse<DeletedResponse>.Ok(res,message:"Xóa thành công"));
+        }
+        [HttpPatch("restore/{id}")]
+        [Authorize]
+        public async Task<IActionResult> RestoreProduct([FromRoute] string id)
+        {
+           var res= await _productService.RestoreProduct(id);
+            return Ok(ApiResponse<BookResponse>.Ok(res,message:"Khôi phục thành công"));
+
         }
 
         [HttpGet("search")]
@@ -91,5 +99,15 @@ namespace StoreManagement.API.Modules.Products.Controllers
             return Ok(ApiResponse<PaginationResponse<BookResponse>>.Ok(result));
         }
 
+        [HttpGet("suggestions")]
+        public async Task<IActionResult> GetSuggestion([FromQuery] FilterProductRequest request)
+        {
+            var res =  await _productService.GetSuggestions(request);
+            return Ok(ApiResponse<List<SuggestionsResponse>>.Ok(res));
+
+        }
+
     }
+
+   
 }

@@ -7,5 +7,8 @@
         public static readonly string PRODUCT_SORT_ASC = "asc";
         public static readonly string PRODUCT_SORT_DESC = "desc";
         public static readonly string PRODUCT_SORT_CREATEDAT = "createdat";
+
+        public static readonly string PRODUCT_STATUS_SELL_ACTIVE = "Active";
+        public static readonly string PRODUCT_STATUS_SELL_Inactive = "Inactive";
     }
 }

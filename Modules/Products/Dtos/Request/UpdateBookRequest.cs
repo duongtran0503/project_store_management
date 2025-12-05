@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using StoreManagement.API.Modules.Products.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace StoreManagement.API.Modules.Products.Dtos.Request
 {
@@ -8,13 +9,13 @@ namespace StoreManagement.API.Modules.Products.Dtos.Request
         [StringLength(250, MinimumLength = 5, ErrorMessage = "Tiêu đề phải từ 5 đến 250 ký tự.")]
         public string Title { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Tên tác giả là bắt buộc.")]
-        [StringLength(100, ErrorMessage = "Tên tác giả không được quá 100 ký tự.")]
-        public string Author { get; set; } = string.Empty;
+        [Required(ErrorMessage = "ID tác giả là bắt buộc.")]
+   
+        public string AuthorId { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Nhà xuất bản là bắt buộc.")]
-        [StringLength(100, ErrorMessage = "Tên nhà xuất bản không được quá 100 ký tự.")]
-        public string Publisher { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Id nhà xuất bản là bắt buộc.")]
+
+        public string PublisherId { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Mã ISBN là bắt buộc.")]
         [StringLength(20, ErrorMessage = "Mã ISBN không hợp lệ.")]
@@ -28,7 +29,9 @@ namespace StoreManagement.API.Modules.Products.Dtos.Request
         [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Giá bán lẻ phải lớn hơn 0.")]
         public decimal RetailPrice { get; set; }
 
-        
+        [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
+        [AllowedAuthorStatus]
+        public string Status { get; set; } = string.Empty;
         public string? Image { get; set; }
         public bool IsAvailable { get; set; } = true;
     }

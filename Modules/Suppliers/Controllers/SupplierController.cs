@@ -42,6 +42,15 @@ namespace StoreManagement.API.Modules.Suppliers.Controllers
             return Ok(ApiResponse<SupplierResponse>.Ok(res));
         }
 
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetSupplierById([FromRoute] string id)
+        {
+           
+            var res = await _supplierService.GetSupplierById(id);
+            return Ok(ApiResponse<SupplierResponse>.Ok(res));
+        }
+
         [HttpGet("search")]
         public async Task<IActionResult> SearchSupplier([FromQuery] SearchSupplierRequest request)
         {

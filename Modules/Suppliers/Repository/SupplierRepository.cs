@@ -17,6 +17,11 @@ namespace StoreManagement.API.Modules.Suppliers.Repository
             return su;
         }
 
+
+        public async Task<Supplier?> GetSupplierByIdAsync(string id)
+        {
+             return await _context.Suppliers.AsNoTracking().IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == id);
+        }
         public async Task<(List<Supplier>,int totalSupplier)> GetPageSupplierAsync(int pageSize,int pageNumber)
         {
            var data = await _context.Suppliers
@@ -28,10 +33,7 @@ namespace StoreManagement.API.Modules.Suppliers.Repository
             return (data, total);
         }
 
-        public async Task<Supplier?> GetSupplierByIdAsync(string id)
-        {
-            return await _context.Suppliers.FindAsync(id);
-        }
+     
         public async Task<Supplier> UpdateSupplierAsync(Supplier s)
         {
             _context.Suppliers.Update(s);

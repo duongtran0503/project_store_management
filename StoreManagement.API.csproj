@@ -42,6 +42,7 @@
 
 		  <!-- Utilities -->
 		  <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		  <PackageReference Include="TimeZoneConverter" Version="7.2.0" />
   </ItemGroup>
 
   <ItemGroup>

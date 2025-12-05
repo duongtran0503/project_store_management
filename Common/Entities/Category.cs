@@ -7,6 +7,7 @@ namespace StoreManagement.API.Common.Entities
         public string CategoryName { get; set; } = string.Empty;
 
         public string CategoryCode { get; set; }
+        public string Status { get; set; } = string.Empty;
         public virtual ICollection<Book> Books { get; set; } = new List<Book>();
     }
 }

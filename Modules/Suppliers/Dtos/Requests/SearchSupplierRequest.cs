@@ -1,4 +1,6 @@
-﻿namespace StoreManagement.API.Modules.Suppliers.Dtos.Requests
+﻿using StoreManagement.API.Common.Responses;
+
+namespace StoreManagement.API.Modules.Suppliers.Dtos.Requests
 {
     public class SearchSupplierRequest:PaginationRequest
     {

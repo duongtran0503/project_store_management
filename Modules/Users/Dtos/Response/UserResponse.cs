@@ -9,6 +9,8 @@ namespace StoreManagement.API.Modules.Users.Dtos.Response
         public string? Phone { get; set; }
         public string Role { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
+
+        public string Id { get; set; }
         public DateTime? CreateAt { get; set; }
     }
 }

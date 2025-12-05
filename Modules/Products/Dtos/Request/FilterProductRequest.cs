@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using StoreManagement.API.Common.Responses;
+using System.ComponentModel.DataAnnotations;
 
 namespace StoreManagement.API.Modules.Products.Dtos.Request
 {

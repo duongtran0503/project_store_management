@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using StoreManagement.API.Modules.Products.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace StoreManagement.API.Modules.Products.Dtos.Request
 {
@@ -12,5 +13,9 @@ namespace StoreManagement.API.Modules.Products.Dtos.Request
         [Required(ErrorMessage = "Mã code danh mục là bắt buộc.")]
         [StringLength(50, ErrorMessage = "Mã code không được vượt quá 50 ký tự.")]
         public string CategoryCode { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
+        [AllowedAuthorStatus]
+        public string Status { get; set; } = string.Empty;
     }
 }

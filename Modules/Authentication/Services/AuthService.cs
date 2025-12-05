@@ -53,6 +53,7 @@
             return new AuthenticationResponse { AccessToken = jwtToken.AccessToken, RefreshToken = jwtToken.RefreshToken };
         }
 
+        
         public async Task<AuthenticationResponse> Login(LoginRequest request)
         {
             var user = await _userRepository.GetUserByEmailAsync(request.Email);

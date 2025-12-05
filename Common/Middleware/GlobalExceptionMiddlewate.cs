@@ -58,7 +58,7 @@ namespace StoreManagement.API.Common.Middleware
             var response = new ApiResponse<object>
             {
                 Success = ex.ErrorCode.Success,
-                Message = ex.ErrorCode.Message,
+                Message = ex.Message,
                 StatusCode = ex.ErrorCode.StatusCode,
                 
             };
