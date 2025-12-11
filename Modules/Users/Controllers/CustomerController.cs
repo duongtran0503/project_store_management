@@ -16,9 +16,9 @@ namespace StoreManagement.API.Modules.Users.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetListCustomer([FromQuery] Common.Responses.PaginationRequest request)
+        public async Task<IActionResult> GetListCustomer([FromQuery] FilterUserRequest request)
         {
-            var res = await _customerService.GetPageCustomer(request);
+            var res = await _customerService.FilterCustomer(request);
             return Ok(ApiResponse<Common.Responses.PaginationResponse<CustomerResponse>>.Ok(res));
         }
 
