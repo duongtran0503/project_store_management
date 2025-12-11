@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StoreManagement.API.Common.Entities;
+using StoreManagement.API.Modules.Users.Dtos.Requests;
 using StoreManagement.API.Shared.Data;
 
 namespace StoreManagement.API.Modules.Users.Repository
@@ -38,6 +39,19 @@ namespace StoreManagement.API.Modules.Users.Repository
             return await _context.customers.AsNoTracking()
                 .Skip((pageNumber-1)*pageSize)
                 .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<List<Customer>> FilterCustomerAsycn(FilterUserRequest request)
+        {
+            var query =  _context.customers.AsNoTracking().AsQueryable();
+            if(!string.IsNullOrEmpty(request.Phone))
+            {
+                query  =query.Where(u=>u.Phone.ToLower().Contains(request.Phone.ToLower()));
+            }
+            return await query
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
                 .ToListAsync();
         }
 

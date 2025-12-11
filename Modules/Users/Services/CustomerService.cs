@@ -33,6 +33,13 @@ namespace StoreManagement.API.Modules.Users.Services
             return ToCustomerResponse(customer);
         }
 
+        public async Task<PaginationResponse<CustomerResponse>> FilterCustomer(FilterUserRequest request)
+        {
+            var listEntities = await _customerRepository.FilterCustomerAsycn(request);
+            var customers = listEntities.Select(u=>ToCustomerResponse(u)).ToList();
+            return new PaginationResponse<CustomerResponse>(customers,customers.Count,request.PageNumber,request.PageSize);            
+        }
+
         public async Task<CustomerResponse> GetCustomerByPhone(string id)
         {
             var  customer = await _customerRepository.GetCustomerById(id);

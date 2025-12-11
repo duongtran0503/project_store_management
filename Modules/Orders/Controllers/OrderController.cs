@@ -41,5 +41,33 @@ namespace StoreManagement.API.Modules.Orders.Controllers
            var res =await _invoiceService.GetPageInvoices(request);
             return Ok(ApiResponse<PaginationResponse<InvoiceResponse>>.Ok(res));
         }
+
+
+        [HttpGet("detail/{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetDetailInvoice([FromRoute] string id)
+        {
+            var res = await _invoiceService.GetDetailInvoiceById(id);
+            return Ok(ApiResponse<InvoiceDetailResponse>.Ok(res));
+        }
+
+        [HttpPatch("{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatusInvoice([FromRoute] string id, [FromBody] UpdateStatusInvoiceRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ApiResponse.ErrorInput(ModelState));
+            var res = await _invoiceService.UpdateStatusInvoice(request, id);
+            return Ok(ApiResponse<InvoiceDetailResponse>.Ok(res));
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateInvoice([FromRoute] string id, [FromBody] UpdateInvoiceRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ApiResponse.ErrorInput(ModelState));
+            var res = await _invoiceService.UpdateInvoice(id,request);
+            return Ok(ApiResponse<InvoiceDetailResponse>.Ok(res));
+        }
+
     }
 }

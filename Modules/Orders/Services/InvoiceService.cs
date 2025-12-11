@@ -45,9 +45,215 @@ namespace StoreManagement.API.Modules.Orders.Services
             return new PaginationResponse<InvoiceResponse>(invoices, invoices.Count, request.PageNumber, request.PageSize);
         }
 
-        //================================================================
-        //== internal function support                                    ==
-        //================================================================
+        public async Task<InvoiceDetailResponse> GetDetailInvoiceById(string id)
+        {
+            var invoice = await _invoiceRepository.GetInvoiceByIdAsync(id);
+            if(invoice== null) throw new AppException(InvoiceErrorCode.InvoiceNotExsited);
+            return await MapToInvoiceResponseAsync(invoice);
+        }
+
+        public async Task<InvoiceDetailResponse> UpdateStatusInvoice(UpdateStatusInvoiceRequest request, string id)
+        {
+            if(!InvoiceStatusConstant.GetStrings().Contains(request.Status)) {
+                throw new AppException(InvoiceErrorCode.InvoiceStatusExsited);
+            }
+            var invoice = await _invoiceRepository.GetInvoiceByIdAsync(id);
+
+            if (invoice == null) throw new AppException(InvoiceErrorCode.InvoiceNotExsited);
+            string oldStatus = invoice.Status;
+            string oldPaymentStatus = invoice.PaymentStatus;
+
+            CheckStatusTransition(oldStatus, request.Status, request.PaymentStatus,invoice.PaymentStatus);
+            if (oldStatus == InvoiceStatusConstant.CANCELLED) {
+                throw new AppException(InvoiceErrorCode.InvoiceNotUpdate);
+            }
+
+            if (request.PaymentStatus == InvoicePaymentStatusConstant.PAID)
+            {
+                invoice.PaymentTime = DateTime.UtcNow;
+                invoice.AmountPaid = invoice.FinalAmount;
+                
+            }
+
+            invoice.PaymentStatus = request.PaymentStatus;
+            invoice.Status = request.Status;
+            var updateInvoice = await _invoiceRepository.UpdateStatusInvoice(invoice,oldStatus);
+            return await MapToInvoiceResponseAsync(invoice);
+        }
+
+      
+
+
+        public async Task<InvoiceDetailResponse> UpdateInvoice(string id, UpdateInvoiceRequest request)
+        {
+           
+            var existingInvoice = await _invoiceRepository.GetInvoiceByIdAsync(id);
+            if (existingInvoice == null)
+            {
+                throw new AppException(InvoiceErrorCode.InvoiceNotExsited);
+            }
+
+            string oldStatus = existingInvoice.Status;
+
+          
+          
+
+           
+            if (!request.Details.Any())
+            {
+                throw new AppException(InvoiceErrorCode.InvoiceDetailNotNull);
+            }
+
+            
+            if (!(oldStatus==InvoiceStatusConstant.PENDING))
+            {
+                throw new AppException(InvoiceErrorCode.InvoiceNotUpdate, "Không thể chỉnh sửa hóa đơn này.");
+            }
+
+          
+
+            
+            var oldStockReductions = existingInvoice.InvoiceDetails.ToDictionary(d => d.BookId, d => d.Quantity);
+
+          
+            var newStockReductions = request.Details.ToDictionary(d => d.BookId, d => d.Quantity);
+
+            
+            var stockAdjustments = new Dictionary<string, int>();
+            var allBookIds = oldStockReductions.Keys.Union(newStockReductions.Keys);
+
+            foreach (var bookId in allBookIds)
+            {
+                oldStockReductions.TryGetValue(bookId, out int oldQty);
+                newStockReductions.TryGetValue(bookId, out int newQty);
+
+             
+                stockAdjustments.Add(bookId, oldQty - newQty);
+            }
+
+          
+            await _inventoryService.CheckStockAvailability(stockAdjustments);
+
+          
+            var listPriceBooksOrder = await _invoiceRepository.GetPriceBooksOrderAsync(request.Details.Select(d => d.BookId).ToList());
+
+            decimal subtotal = request.Details.Sum(d => d.Quantity * listPriceBooksOrder[d.BookId]);
+            decimal totalDiscount = request.Details.Sum(d => d.TotalDiscount);
+            decimal totalAmount = subtotal - totalDiscount;
+            decimal finalAmount = totalAmount;
+
+            existingInvoice.CustomerId = request.CustomerId;
+            existingInvoice.VoucherId = request.VoucherId;
+          
+
+          
+            existingInvoice.Subtotal = subtotal;
+            existingInvoice.TotalAmount = totalAmount;
+            existingInvoice.DiscountAmount = request.DiscountAmount;
+            existingInvoice.FinalAmount = finalAmount;
+
+           
+
+            existingInvoice.PaymentMethod = request.PaymentMethod;
+            existingInvoice.PaymentNote = request.PaymentNote;
+          
+            existingInvoice.AmountPaid = request.AmountPaid;
+
+         
+            var newInvoiceDetails = request.Details.Select(detailRequest => new InvoiceDetail
+            {
+                InvoiceId = existingInvoice.Id,
+                BookId = detailRequest.BookId,
+                Quantity = detailRequest.Quantity,
+                VoucherId = detailRequest.VoucherId,
+                UnitPrice = listPriceBooksOrder[detailRequest.BookId],
+                TotalDiscount = detailRequest.TotalDiscount,
+            }).ToList();
+
+           
+            var updatedInvoice = await _invoiceRepository.UpdateInvoiceAsync(
+                existingInvoice,
+                newInvoiceDetails,
+                stockAdjustments
+            );
+
+           
+            updatedInvoice.InvoiceDetails = newInvoiceDetails;
+            return await MapToInvoiceResponseAsync(updatedInvoice);
+        }
+
+        // ================================================================
+        // == INTERNAL FUNCTION SUPPORT               ==
+        // ================================================================
+
+
+
+        private void CheckStatusTransition(string oldStatus, string newStatus, string newPaymentStatus,string oldPaymentStatus)
+        {
+
+            if (oldPaymentStatus == InvoicePaymentStatusConstant.UNPAID &&
+     newPaymentStatus == InvoicePaymentStatusConstant.PAID &&
+     newStatus != InvoiceStatusConstant.DELIVERED)
+            {
+                throw new AppException(InvoiceErrorCode.InvalidStatusTransition,
+                    "Đơn hàng chỉ có thể chuyển sang PAID khi trạng thái đơn hàng là DELIVERED.");
+            }
+
+            // ============================  logic  năng chăng nghiệp vụ HOÀN TIỀN ĐƠN HÀNG=================================
+
+            if (oldPaymentStatus == InvoicePaymentStatusConstant.PAID &&
+        newPaymentStatus == InvoicePaymentStatusConstant.UNPAID)
+            {
+
+                throw new AppException(InvoiceErrorCode.InvalidStatusTransition,
+                    "Đã chặn nghiệp vụ hoàn tiền (chuyển PAID -> UNPAID) ((Nghiệp vụ chua được triển khai)).");
+            }
+
+          
+            if (oldPaymentStatus == InvoicePaymentStatusConstant.PAID && newStatus == InvoiceStatusConstant.CANCELLED)
+            {
+                throw new AppException(InvoiceErrorCode.InvalidStatusTransition,
+                    "Đơn hàng đã thanh toán (PAID) không thể bị hủy. ((Nghiệp vụ chua được triển khai)).");
+            }
+
+            //==============================================================================================================
+
+            if ((oldStatus == InvoiceStatusConstant.DELIVERED || oldStatus == InvoiceStatusConstant.CANCELLED) && oldStatus != newStatus)
+            {
+                throw new AppException(InvoiceErrorCode.InvoiceNotUpdate,
+                    $"Đơn hàng đã '{oldStatus}' là trạng thái kết thúc, không thể thay đổi.");
+            }
+
+
+            if (newStatus == InvoiceStatusConstant.DELIVERED && newPaymentStatus == InvoicePaymentStatusConstant.UNPAID)
+            {
+                throw new AppException(InvoiceErrorCode.InvalidStatusTransition,
+                    $"Không thể chuyển sang trạng thái '{InvoiceStatusConstant.DELIVERED}' khi chưa thanh toán.");
+            }
+
+            if (newStatus == InvoiceStatusConstant.CANCELLED && newPaymentStatus == InvoicePaymentStatusConstant.PAID)
+            {
+                throw new AppException(InvoiceErrorCode.InvalidStatusTransition,
+                    $"Đơn hàng bị hủy không thể giữ trạng thái thanh toán '{InvoicePaymentStatusConstant.PAID}'. Cần hoàn tiền/đổi trạng thái thanh toán.");
+            }
+
+          
+            if (oldStatus == InvoiceStatusConstant.PENDING &&
+                (newStatus != InvoiceStatusConstant.SHIPPED && newStatus != InvoiceStatusConstant.CANCELLED))
+            {
+                throw new AppException(InvoiceErrorCode.InvalidStatusTransition,
+                    $"Đơn hàng PENDING chỉ có thể chuyển sang SHIPPED hoặc CANCELLED.");
+            }
+
+          
+            if (oldStatus == InvoiceStatusConstant.SHIPPED &&
+                (newStatus != InvoiceStatusConstant.DELIVERED && newStatus != InvoiceStatusConstant.CANCELLED))
+            {
+                throw new AppException(InvoiceErrorCode.InvalidStatusTransition,
+                    $"Đơn hàng SHIPPED chỉ có thể chuyển sang DELIVERED hoặc CANCELLED.");
+            }
+        }
+
         private async Task<InvoiceDetailResponse> CreateInvoice(CreateInvoiceRequest request, string OrderType)
         {
 
@@ -63,7 +269,7 @@ namespace StoreManagement.API.Modules.Orders.Services
             decimal subtotal = request.Details.Sum(d => d.Quantity * listPriceBooksOrder[d.BookId]);
             decimal totalDiscount = request.Details.Sum(d => d.TotalDiscount);
             decimal totalAmount = subtotal - totalDiscount;
-            decimal finalAmount = totalAmount - request.DiscountAmount;
+            decimal finalAmount = totalAmount;
           
             var invoice = new Invoice
             {
@@ -129,8 +335,8 @@ namespace StoreManagement.API.Modules.Orders.Services
                                 ? invoice.AmountPaid - invoice.FinalAmount
                                 : 0;
 
-            decimal totalDiscountCalculated = invoice.DiscountAmount +
-                                              invoice.InvoiceDetails.Sum(d => d.TotalDiscount);
+            decimal totalDiscountCalculated = invoice.DiscountAmount;
+                                            
             var vietnamTimeZone = TZConvert.GetTimeZoneInfo("Asia/Ho_Chi_Minh");
             DateTime createdAtVN = TimeZoneInfo.ConvertTimeFromUtc(invoice.CreatedAt, vietnamTimeZone);
             DateTime updatedAtVN = TimeZoneInfo.ConvertTimeFromUtc(invoice.UpdatedAt, vietnamTimeZone);
@@ -200,8 +406,7 @@ namespace StoreManagement.API.Modules.Orders.Services
                                 ? invoice.AmountPaid - invoice.FinalAmount
                                 : 0;
 
-            decimal totalDiscountCalculated = invoice.DiscountAmount +
-                                              invoice.InvoiceDetails.Sum(d => d.TotalDiscount);
+            decimal totalDiscountCalculated = invoice.DiscountAmount;
             var vietnamTimeZone = TZConvert.GetTimeZoneInfo("Asia/Ho_Chi_Minh");
             DateTime createdAtVN = TimeZoneInfo.ConvertTimeFromUtc(invoice.CreatedAt, vietnamTimeZone);
             DateTime updatedAtVN = TimeZoneInfo.ConvertTimeFromUtc(invoice.UpdatedAt, vietnamTimeZone);

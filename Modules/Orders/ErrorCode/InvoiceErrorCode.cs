@@ -10,6 +10,10 @@ namespace StoreManagement.API.Modules.Orders.ErrorCode
         public static readonly InvoiceErrorCode StaffInventoryInValid = new(400, "Mã nhân viên không đúng", false);
         public static readonly InvoiceErrorCode InvoiceDetailNotNull = new(400, "Đơn hàng phải có ít nhật 1 sản phẩm", false);
         public static readonly InvoiceErrorCode CustomerInventoryInValid = new(400, "Mã Khách hàng không đúng", false);
+        public static readonly InvoiceErrorCode InvoiceNotExsited = new(400, "Đơn hàng không tồn tại", false);
+        public static readonly InvoiceErrorCode InvoiceStatusExsited = new(400, " Trạng thái đơn hàng không tồn tại", false);
+        public static readonly InvoiceErrorCode InvoiceNotUpdate = new(400, " Đơn hàng này không thể bị chỉnh sửa nữa", false);
+        public static readonly InvoiceErrorCode InvalidStatusTransition = new(400, " Trạng thái đơn hàng không hợp lệ", false);
 
         public int StatusCode { get; }
         public string Message { get; }
