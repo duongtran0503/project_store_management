@@ -99,6 +99,16 @@ namespace StoreManagement.API.Modules.Products.Repository
          .ToListAsync();
         }
 
+        public async Task<List<Publisher>> GetPublishersByIds(List<string> ids)
+        {
+            if (ids == null || !ids.Any()) return new List<Publisher>();
+
+            return await _context.Publisher
+                .AsNoTracking()
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync();
+        }
+
 
     }
 }

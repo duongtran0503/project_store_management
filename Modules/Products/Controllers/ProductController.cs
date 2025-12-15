@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using StoreManagement.API.Common.Exceptions;
 using StoreManagement.API.Common.Responses;
 using StoreManagement.API.Modules.Products.Dtos.Request;
 using StoreManagement.API.Modules.Products.Dtos.Response;
@@ -105,6 +106,35 @@ namespace StoreManagement.API.Modules.Products.Controllers
             var res =  await _productService.GetSuggestions(request);
             return Ok(ApiResponse<List<SuggestionsResponse>>.Ok(res));
 
+        }
+        [HttpPost("bulk")]
+        [Authorize]
+        public async Task<IActionResult> CreateBulkProducts([FromBody] List<CreateBookRequest> requests)
+        {
+            if (requests == null || !requests.Any())
+            {
+                return BadRequest("Danh sách sản phẩm không được để trống.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var results = await _productService.CreateProducts(requests);
+
+                return CreatedAtAction(nameof(CreateBulkProducts), results);
+            }
+            catch (AppException ex)
+            {
+                return BadRequest(new { message = ex.Message, errorCode = ex.ErrorCode });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Đã xảy ra lỗi hệ thống khi xử lý dữ liệu hàng loạt.");
+            }
         }
 
     }

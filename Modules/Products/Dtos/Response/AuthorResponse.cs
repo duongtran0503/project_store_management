@@ -8,7 +8,7 @@
         public bool IsDeleted { get; set; } = false;
         public string Status { get; set; } = string.Empty;
         public int TotalBook { get; set; } = 0;
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; }= DateTime.Now;
     }
 }
