@@ -32,7 +32,33 @@ namespace StoreManagement.API.Modules.Products.Repository
             b.Inventory = initialInventory;
             return b;
         }
+        public async Task<List<Book>> CreateBooksAsync(List<Book> books)
+{
+    if (books == null || !books.Any()) return new List<Book>();
 
+ 
+    await _context.Books.AddRangeAsync(books);
+
+    var inventories = books.Select(b => new Inventory
+    {
+        BookId = b.Id,
+        AvailableStock = 0,
+        ReservedStock = 0,
+       
+    }).ToList();
+
+    await _context.Inventories.AddRangeAsync(inventories);
+
+    await _context.SaveChangesAsync();
+
+
+    for (int i = 0; i < books.Count; i++)
+    {
+        books[i].Inventory = inventories[i];
+    }
+
+    return books;
+}
         public async Task<List<Book>> GetBooksAsync()
         {
             return await _context.Books
@@ -42,7 +68,22 @@ namespace StoreManagement.API.Modules.Products.Repository
                  .Include(b => b.Inventory)
                 .AsNoTracking().ToListAsync();
         }
+        public async Task<List<Category>> GetCategoriesByIds(List<string> ids)
+        {
+            return await _context.Categories
+                .AsNoTracking()
+                .Where(c => ids.Contains(c.Id))
+                .ToListAsync();
+        }
 
+        public async Task<List<string>> GetExistingIsbns(List<string> isbns)
+        {
+            return await _context.Books
+                .AsNoTracking()
+                .Where(b => isbns.Contains(b.Isbn))
+                .Select(b => b.Isbn)
+                .ToListAsync();
+        }
         public async Task<bool> CheckBookByISBN(string isbn)
         {
             return await _context.Books.AsNoTracking().IgnoreQueryFilters().AnyAsync(b => b.Isbn == isbn);
@@ -132,6 +173,7 @@ namespace StoreManagement.API.Modules.Products.Repository
         .Include(b => b.Inventory)
         .Skip((pageNumber-1)*pageSize)
         .Take(pageSize)
+        .OrderByDescending(b=>b.CreatedAt)
         .ToListAsync();
             List<BookResponse> results = new List<BookResponse>();
             foreach(var book in books)

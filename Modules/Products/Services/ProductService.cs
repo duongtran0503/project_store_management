@@ -69,7 +69,67 @@ namespace StoreManagement.API.Modules.Products.Services
             return ToBookResposne(product, category);
         }
 
-     
+
+        public async Task<List<BookResponse>> CreateProducts(List<CreateBookRequest> requests)
+        {
+            if (requests == null || !requests.Any()) return new List<BookResponse>();
+
+            var categoryIds = requests.Select(r => r.CategoryId).Distinct().ToList();
+            var authorIds = requests.Select(r => r.AuthorId).Distinct().ToList();
+            var publisherIds = requests.Select(r => r.PublisherId).Distinct().ToList();
+            var isbns = requests.Select(r => r.Isbn).Distinct().ToList();
+
+            var categories = (await _categoryRepository.GetCategoriesByIds(categoryIds)).ToDictionary(c => c.Id);
+            var authors = (await _authorRepository.GetAuthorsByIds(authorIds)).ToDictionary(a => a.Id);
+            var publishers = (await _publisherRepository.GetPublishersByIds(publisherIds)).ToDictionary(p => p.Id);
+
+            var existingIsbns = await _productRepository.GetExistingIsbns(isbns);
+
+            var booksToCreate = new List<Book>();
+
+            foreach (var request in requests)
+            {
+                if (!categories.ContainsKey(request.CategoryId))
+                    throw new AppException(CategoryErrorCode.CategoryNotExisted);
+
+                if (!authors.ContainsKey(request.AuthorId))
+                    throw new AppException(AuthorErrorCode.AuthorNotExisted);
+
+                if (!publishers.ContainsKey(request.PublisherId))
+                    throw new AppException(PublisherErrorCode.PublisherNotExisted);
+
+                if (existingIsbns.Contains(request.Isbn))
+                    throw new AppException(BookErrorCode.BookExisted, $"ISBN {request.Isbn} already exists.");
+
+                string image = string.IsNullOrWhiteSpace(request.Image)
+                    ? ProductConstants.PRODUCT_DEFAULT_IMAGE
+                    : request.Image;
+
+                var book = new Book
+                {
+                    Title = request.Title,
+                    AuthorId = request.AuthorId,
+                    Isbn = request.Isbn,
+                    PublisherId = request.PublisherId,
+                    Image = image,
+                    CategoryId = request.CategoryId,
+                    RetailPrice = request.RetailPrice,
+                    Status = request.Status,
+                };
+
+                booksToCreate.Add(book);
+            }
+
+            var createdBooks = await _productRepository.CreateBooksAsync(booksToCreate);
+
+            return createdBooks.Select(b => {
+                b.Author = authors[b.AuthorId];
+                b.Publisher = publishers[b.PublisherId];
+                b.Category = categories[b.CategoryId];
+                return ToBookResposne(b, b.Category);
+            }).ToList();
+        }
+
 
         public async Task<PaginationResponse<BookResponse>> GetBooksAsync(PaginationRequest request)
         {
@@ -180,6 +240,8 @@ namespace StoreManagement.API.Modules.Products.Services
                request.PageSize
            );
         }
+
+
 
         public async Task<List<SuggestionsResponse>> GetSuggestions(FilterProductRequest request)
         {

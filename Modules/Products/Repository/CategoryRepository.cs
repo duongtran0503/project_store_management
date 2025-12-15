@@ -36,7 +36,13 @@ namespace StoreManagement.API.Modules.Products.Repository
                 .Take(pageSize)
                 .ToListAsync();
         }
-
+        public async Task<List<Category>> GetCategoriesByIds(List<string> ids)
+        {
+            return await _context.Categories
+                .AsNoTracking()
+                .Where(c => ids.Contains(c.Id))
+                .ToListAsync();
+        }
         public async Task<List<CategoryWithDetail>> GetPageCategoriesWithDetailAsync(int pageNumber,int pageSize)
         {
             return await _context.Categories

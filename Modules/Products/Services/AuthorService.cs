@@ -40,24 +40,17 @@ namespace StoreManagement.API.Modules.Products.Services
         public async Task<PaginationResponse<AuthorResponse>> GetListAuthors(PaginationRequest request)
         {
 
-            if(request.All!=null && request.All==true)
-            {
-                var authorEntities = await _authorRepository.GetAllAsync();
-                var list = authorEntities.Select(a => ToAuthorResponse(a)).ToList();
-                var  totalCount = list.Count; 
-
-              
-                return new PaginationResponse<AuthorResponse>(
-                    list,
-                    totalCount,
-                    pageNumber: 1,
-                    pageSize: totalCount > 0 ? totalCount : 1
-                );
-
+          
+         
+            var authors = await _authorRepository.GetPageAuthorAsync(request.PageNumber, request.PageSize);
+            foreach (var author in authors) {
+                var vietnamTimeZone = TZConvert.GetTimeZoneInfo("Asia/Ho_Chi_Minh");
+                DateTime createdAtVN = TimeZoneInfo.ConvertTimeFromUtc(author.CreatedAt, vietnamTimeZone);
+                DateTime updatedAtVN = TimeZoneInfo.ConvertTimeFromUtc(author.UpdatedAt, vietnamTimeZone);
+                author.UpdatedAt = updatedAtVN;
+                author.CreatedAt = createdAtVN;
             }
-            var (authorEntitties, total) = await _authorRepository.GetPageAuthorAsync(request.PageNumber, request.PageSize);
-            var authors = authorEntitties.Select(a => ToAuthorResponse(a)).ToList();
-            return new PaginationResponse<AuthorResponse>(authors, total, request.PageNumber, request.PageSize);
+            return new PaginationResponse<AuthorResponse>(authors, authors.Count, request.PageNumber, request.PageSize);
         }
 
 
@@ -105,8 +98,16 @@ namespace StoreManagement.API.Modules.Products.Services
 
         public async Task<PaginationResponse<AuthorResponse>> FilterAuthor(FiltertAuthorRequest request)
         {
-            var authorEntities = await _authorRepository.FilterAuthorAsync(request);
-            var authors = authorEntities.Select(au => ToAuthorResponse(au)).ToList();
+           await _authorRepository.FilterAuthorAsync(request);
+            var authors=  await _authorRepository.FilterAuthorAsync(request);
+            foreach (var author in authors)
+            {
+                var vietnamTimeZone = TZConvert.GetTimeZoneInfo("Asia/Ho_Chi_Minh");
+                DateTime createdAtVN = TimeZoneInfo.ConvertTimeFromUtc(author.CreatedAt, vietnamTimeZone);
+                DateTime updatedAtVN = TimeZoneInfo.ConvertTimeFromUtc(author.UpdatedAt, vietnamTimeZone);
+                author.UpdatedAt = updatedAtVN;
+                author.CreatedAt = createdAtVN;
+            }
             return new PaginationResponse<AuthorResponse>(authors, authors.Count, request.PageNumber, request.PageSize);
         }
 

@@ -4,6 +4,7 @@ using StoreManagement.API.Modules.Products.Constants;
 using StoreManagement.API.Modules.Products.Dtos.Request;
 using StoreManagement.API.Modules.Products.Dtos.Response;
 using StoreManagement.API.Shared.Data;
+using TimeZoneConverter;
 
 namespace StoreManagement.API.Modules.Products.Repository
 {
@@ -34,18 +35,30 @@ namespace StoreManagement.API.Modules.Products.Repository
             return author;
         }
 
-        public async Task<(List<Author> authors, int totalCount)> GetPageAuthorAsync(int pageNumber, int pageSize)
+        public async Task<List<AuthorResponse>> GetPageAuthorAsync(int pageNumber, int pageSize)
         {
+          
             var authors = await _context.Authorities
-                .Where(p => p.Status == AuthorStatusConstants.DEFAULT && p.IsDeleted==false)
+                .Where(p => p.Status == AuthorStatusConstants.DEFAULT && p.IsDeleted == false)
                 .AsNoTracking()
+                .OrderBy(p => p.Name) 
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(a => new AuthorResponse
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    Code = a.Code,
+                    Status = a.Status,
+                    IsDeleted = a.IsDeleted,
+                    TotalBook = a.Books.Count(),
+                    CreatedAt = a.CreatedAt,
+                    UpdatedAt = a.UpdatedAt,
+                })
                 .ToListAsync();
 
-            return (authors, authors.Count);
+            return (authors);
         }
-
         public async Task<int> GetTotalBookAsnc(string id)
         {
             return await _context.Books
@@ -73,7 +86,7 @@ namespace StoreManagement.API.Modules.Products.Repository
             return author;
         }
 
-        public async Task<List<Author>> FilterAuthorAsync(FiltertAuthorRequest request)
+        public async Task<List<AuthorResponse>> FilterAuthorAsync(FiltertAuthorRequest request)
         {
             var query = _context.Authorities.AsNoTracking().AsQueryable();
 
@@ -82,8 +95,30 @@ namespace StoreManagement.API.Modules.Products.Repository
                 string term = request.SearchTerm.ToLower();
                 query = query.Where(au => au.Name.ToLower().Contains(term) || au.Code.ToLower().Contains(term));
             }
-            return await query.AsNoTracking().Skip((request.PageNumber - 1) * request.PageSize)
+            return await query.AsNoTracking()
+                .OrderBy(p => p.Name)
+                .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
+                .Select(a => new AuthorResponse
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    Code = a.Code,
+                    Status = a.Status,
+                    IsDeleted = a.IsDeleted,
+                    TotalBook = a.Books.Count(),
+                    CreatedAt = a.CreatedAt,
+                    UpdatedAt = a.UpdatedAt,
+                })
+                .ToListAsync();
+        }
+        public async Task<List<Author>> GetAuthorsByIds(List<string> ids)
+        {
+            if (ids == null || !ids.Any()) return new List<Author>();
+
+            return await _context.Authorities
+                .AsNoTracking()
+                .Where(a => ids.Contains(a.Id))
                 .ToListAsync();
         }
 
